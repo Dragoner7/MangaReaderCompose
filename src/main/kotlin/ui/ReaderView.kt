@@ -2,14 +2,12 @@ package ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -156,17 +154,22 @@ fun PageViewImage(readerState: ReaderState) {
 fun ReaderView(chapter: Chapter) {
     var readerState by remember { mutableStateOf(ReaderState(chapter, 0)) }
     MaterialTheme {
-        Box {
+        Box(Modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center
+            ){
+                PageViewImage(readerState)
+            }
+            Row(
+                modifier = Modifier.fillMaxSize(),
                 horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            ){
                 Button(onClick = {
                     readerState = readerState.flip(-1)
                 }) {
                     Text("Previous")
                 }
-                PageViewImage(readerState)
                 Button(onClick = {
                     readerState = readerState.flip(1)
                 }) {
