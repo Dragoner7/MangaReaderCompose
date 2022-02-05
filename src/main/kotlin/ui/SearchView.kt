@@ -2,8 +2,7 @@ package ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
@@ -14,87 +13,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.*
 import model.CoverStorage
 import model.Manga
 import model.MangaDex
 import java.awt.SystemColor.text
-
-/*
-import javafx.scene.Parent
-import javafx.scene.image.Image
-import javafx.scene.layout.BackgroundFill
-import javafx.scene.paint.Paint
-import model.CoverStorage
-import model.Manga
-import model.MangaDex
-import tornadofx.*
-import java.awt.Color
-
-class SearchView : View("Search") {
-    private val searchBox = textfield {}
-    private val searchButton = button("Search") {
-        action { search() }
-        isDefaultButton = true
-    }
-
-    private val infoView by inject<MangaInfoView>()
-
-    private val resultGrid = datagrid(emptyList<Result>()){
-        cellCache{
-            stackpane {
-                it.cover?.let { e -> imageview(e){
-                    fitHeight = 100.0
-                    isPreserveRatio = true
-                } }
-                label(it.manga.name){
-                    isWrapText = true
-                    maxHeight = 100.0
-                }
-            }
-        }
-        singleSelect = true
-        onUserSelect(1) {
-            openInfoView(it.manga)
-        }
-    }
-
-    private fun openInfoView(manga : Manga) {
-        infoView.onMangaLoad(manga)
-        replaceWith(MangaInfoView::class, ViewTransition.Slide(0.3.seconds, ViewTransition.Direction.LEFT))
-    }
-
-    override val root = borderpane {
-        top = borderpane {
-            center = searchBox
-            right = searchButton
-        }
-        center = resultGrid
-    }
-
-
-    private fun search(){
-        root.center = label("Loading...")
-        runAsync {
-            searchButton.isDisable = true
-            val mangaList = MangaDex.getMangaByTitle(searchBox.text)
-            val covers = CoverStorage.getFirstCovers(mangaList)
-            val results : MutableList<Result> = mutableListOf()
-            for(manga in mangaList){
-                val image = covers[manga]?.let { Image(it.url, true) }
-                results.add(Result(manga, image))
-            }
-            searchButton.isDisable = false
-            ui{
-                root.center = resultGrid
-                resultGrid.items.clear()
-                resultGrid.items.addAll(results)
-            }
-        }
-    }
-}*/
 
 class Result(val manga : Manga, val cover : String?)
 
@@ -141,13 +72,27 @@ fun ResultsView(mangaList : List<Result>, onMangaChange : (Manga) -> Unit){
 
 @Composable
 fun ResultView(result: Result, onMangaChange : (Manga) -> Unit) {
-    Box{
+    Box(
+        modifier = Modifier.size(100.dp, 200.dp),
+        contentAlignment = Alignment.Center,
+    ){
         result.cover?.let { CoverImage(it) }
-        Text(text = result.manga.name)
-        Button(onClick = {
-            onMangaChange(result.manga)
-        }){
-            Text(text = "Read")
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+            Text(
+                text = result.manga.name,
+                textAlign = TextAlign.Center,
+                color = Color.Black
+            )
+            Button(
+                onClick = {
+                onMangaChange(result.manga)
+            }
+            ){
+                Text(text = "Read")
+            }
         }
     }
 }
