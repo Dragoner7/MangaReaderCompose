@@ -1,5 +1,6 @@
 package ui
 
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
@@ -120,6 +121,7 @@ class MangaInfoView : View("Manga info") {
 }*/
 
 @Composable
+@Preview
 fun MangaInfoView(manga: Manga, onChapterSelect: (Chapter)-> Unit){
     val chapterList = remember { manga.chapters }
     Row {
