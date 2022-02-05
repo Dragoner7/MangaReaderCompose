@@ -3,9 +3,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import model.Chapter
+import model.Manga
 import model.MangaDex
 import ui.MangaInfoView
 import ui.ReaderView
+import ui.SearchView
 
 enum class WindowState{
     SEARCH,
@@ -16,18 +18,21 @@ enum class WindowState{
 fun main() = application {
     //for some reason hybrid GPU Windows doesn't like Direct3D for Compose
     System.setProperty("skiko.renderApi", "OPENGL")
-    //Neon Genesis Evangelion - Chapter 1 in a foreign language, depends on which order it's in the JSON
-    var manga = remember { MangaDex.getManga("aaedcbda-ea61-4e7b-8143-7a475f327fbf") }
-    var chapter = remember { manga!!.chapters[0] }
     Window(onCloseRequest = ::exitApplication) {
+        var selectedManga : Manga? by remember { mutableStateOf(null) }
         var selectedChapter : Chapter? by remember { mutableStateOf(null) }
-        var windowState : WindowState by remember { mutableStateOf(WindowState.INFO) }
+        var windowState : WindowState by remember { mutableStateOf(WindowState.SEARCH) }
         fun onChapterChange(chapter: Chapter) : Unit{
             selectedChapter = chapter
             windowState = WindowState.VIEW
         }
+        fun onMangaChange(manga: Manga) : Unit{
+            selectedManga = manga
+            windowState = WindowState.INFO
+        }
         when(windowState){
-            WindowState.INFO -> MangaInfoView(manga!!, ::onChapterChange)
+            WindowState.SEARCH -> SearchView(::onMangaChange)
+            WindowState.INFO -> MangaInfoView(selectedManga!!, ::onChapterChange)
             WindowState.VIEW -> ReaderView(selectedChapter!!)
             else -> {Text(text = "Not yet implemented")}
         }
