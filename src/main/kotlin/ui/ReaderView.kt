@@ -1,5 +1,26 @@
 package ui
 
+import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.toComposeImageBitmap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import model.Chapter
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.jetbrains.skia.Image
+
 /*
 import javafx.scene.image.Image
 import model.Chapter
@@ -104,3 +125,54 @@ class ReaderView : View("Manga reader") {
     }
 
 }*/
+
+@Composable
+fun PageViewImage(readerState: ReaderState) {
+    val image: ImageBitmap? by produceState<ImageBitmap?>(null, readerState) {
+        value = withContext(Dispatchers.IO) {
+            try {
+                val imageRequest = Request.Builder().url(readerState.getCurrentPageUrl()).build()
+                val client = OkHttpClient.Builder().build()
+                val response = client.newCall(imageRequest).execute().body()?.bytes()
+                Image.makeFromEncoded(response).toComposeImageBitmap()
+
+            } catch (e : Exception){
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
+    if(image != null){
+        Image(
+            painter = BitmapPainter(image!!),
+            contentDescription = null,
+        )
+    }
+}
+
+@Composable
+@Preview
+fun ReaderView(chapter: Chapter) {
+    var readerState by remember { mutableStateOf(ReaderState(chapter, 0)) }
+    MaterialTheme {
+        Box {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(onClick = {
+                    readerState = readerState.flip(-1)
+                }) {
+                    Text("Previous")
+                }
+                PageViewImage(readerState)
+                Button(onClick = {
+                    readerState = readerState.flip(1)
+                }) {
+                    Text("Next")
+                }
+            }
+        }
+    }
+}
