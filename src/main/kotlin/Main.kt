@@ -17,11 +17,11 @@ enum class WindowState{
 
 @OptIn(ExperimentalAnimationApi::class)
 fun main() {
-    lateinit var reader: Reader
     application {
         //for some reason hybrid GPU Windows doesn't like Direct3D for Compose
         System.setProperty("skiko.renderApi", "OPENGL")
         Window(onCloseRequest = ::exitApplication) {
+            var reader: Reader? by remember { mutableStateOf(null) }
             var selectedManga: Manga? by remember { mutableStateOf(null) }
             var windowState: WindowState by remember { mutableStateOf(WindowState.SEARCH) }
             var readerState by remember { mutableStateOf(ReaderState(0, 0, false, 0.0f, null)) }
@@ -34,10 +34,11 @@ fun main() {
             }
 
             fun notifyStateChange(state: ReaderState){
-                reader.notifyStateChange(state)
+                reader?.notifyStateChange(state)
             }
 
             fun onChapterChange(chapter: Chapter){
+                reader?.dispose()
                 reader = Reader(chapter, ::onReaderStateChange)
                 windowState = WindowState.VIEW
             }

@@ -52,6 +52,7 @@ fun LoadedViewer(readerState: ReaderState, onStateChange : (ReaderState) -> Unit
                 Button(onClick = {onWindowStateChange(WindowState.INFO)}){
                     Text(text = "Back")
                 }
+                Text(text = readerState.currentPageNumber.toString())
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.SpaceBetween

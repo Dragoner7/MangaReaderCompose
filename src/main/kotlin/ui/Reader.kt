@@ -9,6 +9,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.net.URL
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.min
@@ -17,11 +19,14 @@ data class Page(val number : Int, val url : String, var isDownloading : Boolean,
     val mutex = Mutex()
 }
 
-class Reader(val chapter: Chapter, val onStateChange : (ReaderState)->Unit) {
+class Reader(chapter: Chapter, var onStateChange : (ReaderState)->Unit) {
     private val PRELOAD_PAGES = 3
     private var currentPageNumber = 0
     private var numOfPages : Int = chapter.urls.size
     private var ready : Boolean = false
+
+    private val okHttpClient = OkHttpClient()
+
     init {
         onStateChange(ReaderState(0, 0, ready, 0.0f, null))
         chapterPreload(0, PRELOAD_PAGES)
@@ -32,14 +37,20 @@ class Reader(val chapter: Chapter, val onStateChange : (ReaderState)->Unit) {
     private suspend fun downloadFuturePages(offset : Int, num : Int, afterEachDownload: (Int)->Unit){
         for (i in offset until min(offset + num, numOfPages)) {
             val page = pages[i]
-            page.mutex.withLock {
-                if(!page.isDownloading && page.img == null) {
-                    pages[i].isDownloading = true
-                    val img = URL(pages[i].url).openStream().buffered().use(::loadImageBitmap)
-                    pages[i].img = img
-                    pages[i].isDownloading = false
-                    afterEachDownload(i)
+            try {
+                page.mutex.withLock {
+                    if(!page.isDownloading && page.img == null) {
+                        pages[i].isDownloading = true
+                        val request = Request.Builder().url(pages[i].url).build()
+                        okHttpClient.newCall(request).execute().use {
+                            pages[i].img = it.body()?.let { it1 -> loadImageBitmap(it1.byteStream()) }
+                        }
+                        pages[i].isDownloading = false
+                        afterEachDownload(i)
+                    }
                 }
+            } catch (e: InterruptedException) {
+                return
             }
         }
     }
@@ -81,6 +92,14 @@ class Reader(val chapter: Chapter, val onStateChange : (ReaderState)->Unit) {
         if(difference > 0){
             chapterPreload(start, difference)
         }
+    }
+
+    fun dispose(){
+        onStateChange = {}
+        for(page in pages){
+            okHttpClient.dispatcher().cancelAll()
+        }
+        okHttpClient.connectionPool().evictAll()
     }
 
 }
