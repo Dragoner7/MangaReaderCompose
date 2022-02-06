@@ -23,7 +23,7 @@ object MangaDex {
     fun getManga(id: String): Manga? {
         try {
             val mangaRequest = service.getMangaById(id).execute().body()!!
-            return Manga(mangaRequest.data.id, findName(mangaRequest.data), mangaRequest.data.attributes.description.en)
+            return Manga(mangaRequest.data.id, findName(mangaRequest.data), mangaRequest.data.attributes.description.en ?: "")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -44,7 +44,7 @@ object MangaDex {
             val result = service.getMangaByTitle(title).execute().body()!!
 
             for(mangaDto in result.data){
-                mangaList.add(Manga(mangaDto.id, findName(mangaDto), mangaDto.attributes.description.en))
+                mangaList.add(Manga(mangaDto.id, findName(mangaDto), mangaDto.attributes.description.en ?: ""))
             }
         } catch (e: Exception) {
             e.printStackTrace()
