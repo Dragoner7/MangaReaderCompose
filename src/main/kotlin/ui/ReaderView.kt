@@ -33,7 +33,7 @@ fun ReaderView(readerState: ReaderState, onStateChange : (ReaderState) -> Unit) 
 @Composable
 fun LoadedViewer(readerState: ReaderState, onStateChange : (ReaderState) -> Unit){
     val image by produceState<ImageBitmap?>(null, readerState){
-        value = readerState.downloadedPages[readerState.currentPageNumber]
+        value = readerState.currentPage
     }
     MaterialTheme {
         Box(Modifier.fillMaxSize()) {
