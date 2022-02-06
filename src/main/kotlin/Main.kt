@@ -21,11 +21,14 @@ fun main() {
         System.setProperty("skiko.renderApi", "OPENGL")
         Window(onCloseRequest = ::exitApplication) {
             var selectedManga: Manga? by remember { mutableStateOf(null) }
-            var selectedChapter: Chapter? by remember { mutableStateOf(null) }
             var windowState: WindowState by remember { mutableStateOf(WindowState.SEARCH) }
             var readerState by remember { mutableStateOf(ReaderState(0, 0, false, 0.0f, null)) }
-            fun onStateChange(state: ReaderState){
+            fun onReaderStateChange(state: ReaderState){
                 readerState = state
+            }
+
+            fun onWindowStateChange(state: WindowState){
+                windowState = state
             }
 
             fun notifyStateChange(state: ReaderState){
@@ -33,9 +36,8 @@ fun main() {
             }
 
             fun onChapterChange(chapter: Chapter){
-                selectedChapter = chapter
+                reader = Reader(chapter, ::onReaderStateChange)
                 windowState = WindowState.VIEW
-                reader = Reader(chapter, ::onStateChange)
             }
 
             fun onMangaChange(manga: Manga){
@@ -45,8 +47,8 @@ fun main() {
 
             when (windowState) {
                 WindowState.SEARCH -> SearchView(::onMangaChange)
-                WindowState.INFO -> MangaInfoView(selectedManga!!, ::onChapterChange)
-                WindowState.VIEW -> ReaderView(readerState, ::notifyStateChange)
+                WindowState.INFO -> MangaInfoView(selectedManga!!, ::onChapterChange, ::onWindowStateChange)
+                WindowState.VIEW -> ReaderView(readerState, ::notifyStateChange, ::onWindowStateChange)
             }
 
         }

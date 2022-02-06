@@ -1,5 +1,6 @@
 package ui
 
+import WindowState
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.VerticalScrollbar
@@ -21,16 +22,21 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import api.model.Chapter
 import api.model.Manga
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.awt.Window
 import java.net.URL
 
 @Composable
 @Preview
-fun MangaInfoView(manga: Manga, onChapterSelect: (api.model.Chapter)-> Unit){
+fun MangaInfoView(manga: Manga, onChapterSelect: (Chapter)-> Unit, onWindowStateChange: (WindowState)-> Unit){
     val chapterList = remember { manga.chapters }
     Row {
+        Button(onClick = {onWindowStateChange(WindowState.SEARCH)}){
+            Text(text = "Back")
+        }
         Column(Modifier.width(250.dp)) {
             Text(
                 text = manga.name,

@@ -1,5 +1,6 @@
 package ui
 
+import WindowState
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -19,15 +20,15 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 
 @Composable
 @Preview
-fun ReaderView(readerState: ReaderState, onStateChange : (ReaderState) -> Unit) {
+fun ReaderView(readerState: ReaderState, onStateChange : (ReaderState) -> Unit, onWindowStateChange: (WindowState)-> Unit) {
     when(readerState.ready){
-        true -> LoadedViewer(readerState, onStateChange)
+        true -> LoadedViewer(readerState, onStateChange, onWindowStateChange)
         false -> CircularProgressIndicator(readerState.loadingProgress)
     }
 }
 
 @Composable
-fun LoadedViewer(readerState: ReaderState, onStateChange : (ReaderState) -> Unit){
+fun LoadedViewer(readerState: ReaderState, onStateChange : (ReaderState) -> Unit, onWindowStateChange: (WindowState)-> Unit){
     val image by produceState<ImageBitmap?>(null, readerState){
         value = readerState.currentPage
     }
@@ -44,19 +45,25 @@ fun LoadedViewer(readerState: ReaderState, onStateChange : (ReaderState) -> Unit
                     )
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                Button(onClick = {
-                    onStateChange(readerState.flip(-1))
-                }) {
-                    Text("Previous")
+            Row(modifier = Modifier.fillMaxSize()) {
+                Button(onClick = {onWindowStateChange(WindowState.INFO)}){
+                    Text(text = "Back")
                 }
-                Button(onClick = {
-                    onStateChange(readerState.flip(1))
-                }) {
-                    Text("Next")
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
+                    Button(onClick = {
+                        onStateChange(readerState.flip(-1))
+                    }) {
+                        Text("Previous")
+                    }
+
+                    Button(onClick = {
+                        onStateChange(readerState.flip(1))
+                    }) {
+                        Text("Next")
+                    }
                 }
             }
         }

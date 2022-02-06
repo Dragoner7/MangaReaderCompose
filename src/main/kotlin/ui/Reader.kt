@@ -8,13 +8,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.net.URL
+import kotlin.math.min
 
 class Reader(val chapter: Chapter, val onStateChange : (ReaderState)->Unit) {
     private val PRELOAD_PAGES = 3
     private var currentPageNumber = 0
-    private var numOfPages : Int = 0
+    private var numOfPages : Int = chapter.urls.size
     private var ready : Boolean = false
     init {
+        onStateChange(ReaderState(0, 0, ready, 0.0f, null))
         chapterLoad(0, PRELOAD_PAGES)
     }
 
@@ -24,14 +26,13 @@ class Reader(val chapter: Chapter, val onStateChange : (ReaderState)->Unit) {
     fun chapterLoad(offset : Int, num : Int) {
         GlobalScope.launch(Dispatchers.IO) {
             try{
-                for (i in offset until offset + num) {
+                for (i in offset until min(offset + num, numOfPages)) {
                     val img = URL(chapter.urls[i]).openStream().buffered().use(::loadImageBitmap)
                     downloadedPages.add(img)
                     val progress = i.toFloat() / num.toFloat()
                     onStateChange(ReaderState(0, 0, ready, progress, null))
                 }
                 ready = true
-                numOfPages = chapter.urls.size
                 onStateChange(ReaderState(currentPageNumber, numOfPages, ready, 1.0f, downloadedPages[offset]))
             } catch (e :Exception){
                 e.printStackTrace()

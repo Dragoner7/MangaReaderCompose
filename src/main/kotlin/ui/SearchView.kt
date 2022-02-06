@@ -2,10 +2,7 @@ package ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
@@ -35,27 +32,29 @@ class Result(val manga : Manga, val cover : String?)
 @Composable
 @Preview
 fun SearchView(onMangaChange : (Manga) -> Unit){
-    Column {
+    Column(modifier = Modifier.fillMaxSize()) {
         val textState = remember { mutableStateOf(TextFieldValue()) }
         val mangaResults = remember { mutableStateListOf<Result>() }
-        TextField(
-            value = textState.value,
-            onValueChange = { textState.value = it }
-        )
-        Button(onClick = {
-            GlobalScope.launch(Dispatchers.IO) {
-                val mangaList = MangaDex.getMangaByTitle(textState.value.text)
-                val covers = api.model.CoverStorage.getFirstCovers(mangaList)
-                val results : MutableList<Result> = mutableListOf()
-                for(manga in mangaList){
-                    val image = covers[manga]?.url
-                    results.add(Result(manga, image))
+        Row(modifier = Modifier.fillMaxWidth()){
+            TextField(
+                value = textState.value,
+                onValueChange = { textState.value = it }
+            )
+            Button(onClick = {
+                GlobalScope.launch(Dispatchers.IO) {
+                    val mangaList = MangaDex.getMangaByTitle(textState.value.text)
+                    val covers = api.model.CoverStorage.getFirstCovers(mangaList)
+                    val results : MutableList<Result> = mutableListOf()
+                    for(manga in mangaList){
+                        val image = covers[manga]?.url
+                        results.add(Result(manga, image))
+                    }
+                    mangaResults.clear()
+                    mangaResults.addAll(results)
                 }
-                mangaResults.clear()
-                mangaResults.addAll(results)
+            }){
+                Text(text = "Search")
             }
-        }){
-            Text(text = "Search")
         }
         ResultsView(mangaResults, onMangaChange)
     }
