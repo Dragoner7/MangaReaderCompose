@@ -9,12 +9,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
@@ -65,11 +64,11 @@ fun MangaView(manga: Manga, onChapterSelect: (Chapter)-> Unit, onWindowStateChan
                 fontSize = 16.sp
             )
         }
-        Box{
+        Box(Modifier.fillMaxWidth()){
             val state = rememberLazyListState()
             LazyColumn(Modifier.fillMaxSize().padding(end = 12.dp), state) {
                 items(manga.chapters){
-                        chapter -> ChapterView(chapter, onChapterSelect)
+                        chapter -> ChapterView(chapter, manga.chapters.indexOf(chapter) ,onChapterSelect)
                 }
             }
             VerticalScrollbar(
@@ -82,16 +81,19 @@ fun MangaView(manga: Manga, onChapterSelect: (Chapter)-> Unit, onWindowStateChan
 }
 
 @Composable
-fun ChapterView(chapter : Chapter, onChapterSelect :(Chapter)->Unit){
-    Button(
-        onClick = {
+fun ChapterView(chapter : Chapter, index : Int,onChapterSelect :(Chapter)->Unit){
+    Card(
+        modifier = Modifier.padding(12.dp).fillMaxWidth(),
+    ) {
+        TextButton(onClick = {
             onChapterSelect(chapter)
         },
-    ){
-        Text(
-            text = chapter.toString(),
-            fontSize = 16.sp
-        )
+        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)){
+            Text(
+                text = chapter.toString(),
+                fontSize = 16.sp
+            )
+        }
     }
 }
 
