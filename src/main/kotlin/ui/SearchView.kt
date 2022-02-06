@@ -32,6 +32,7 @@ class Result(val manga : Manga, val cover : String?)
 @Composable
 @Preview
 fun SearchView(onMangaChange : (Manga) -> Unit){
+    val searching = remember { mutableStateOf<Boolean>(false) }
     Column(modifier = Modifier.fillMaxSize()) {
         val textState = remember { mutableStateOf(TextFieldValue()) }
         val mangaResults = remember { mutableStateListOf<Result>() }
@@ -41,6 +42,7 @@ fun SearchView(onMangaChange : (Manga) -> Unit){
                 onValueChange = { textState.value = it }
             )
             Button(onClick = {
+                searching.value = true
                 GlobalScope.launch(Dispatchers.IO) {
                     val mangaList = MangaDex.getMangaByTitle(textState.value.text)
                     val covers = api.model.CoverStorage.getFirstCovers(mangaList)
@@ -51,12 +53,18 @@ fun SearchView(onMangaChange : (Manga) -> Unit){
                     }
                     mangaResults.clear()
                     mangaResults.addAll(results)
+                    searching.value = false
                 }
-            }){
+            }, enabled = !searching.value){
                 Text(text = "Search")
             }
         }
-        ResultsView(mangaResults, onMangaChange)
+        if(searching.value){
+            LoadingView(0.0f)
+        } else{
+            ResultsView(mangaResults, onMangaChange)
+        }
+
     }
 
 }

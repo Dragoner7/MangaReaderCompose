@@ -14,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -23,9 +24,11 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 fun ReaderView(readerState: ReaderState, onStateChange : (ReaderState) -> Unit, onWindowStateChange: (WindowState)-> Unit) {
     when(readerState.ready){
         true -> LoadedViewer(readerState, onStateChange, onWindowStateChange)
-        false -> CircularProgressIndicator(readerState.loadingProgress)
+        false -> LoadingView(readerState.loadingProgress)
     }
 }
+
+
 
 @Composable
 fun LoadedViewer(readerState: ReaderState, onStateChange : (ReaderState) -> Unit, onWindowStateChange: (WindowState)-> Unit){

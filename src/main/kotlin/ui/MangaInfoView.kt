@@ -10,11 +10,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -23,8 +21,12 @@ import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import api.model.Chapter
+import api.model.Cover
+import api.model.CoverStorage
 import api.model.Manga
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.awt.Window
 import java.net.URL
@@ -32,7 +34,22 @@ import java.net.URL
 @Composable
 @Preview
 fun MangaInfoView(manga: Manga, onChapterSelect: (Chapter)-> Unit, onWindowStateChange: (WindowState)-> Unit){
-    val chapterList = remember { manga.chapters }
+    var ready by remember { mutableStateOf<Boolean>(false) }
+    if(ready){
+        MangaView(manga, onChapterSelect, onWindowStateChange)
+    } else {
+        GlobalScope.launch(Dispatchers.IO) {
+            manga.chapters
+            CoverStorage.getFirstCover(manga)
+            ready = true
+        }
+        LoadingView(0.0f)
+    }
+
+}
+
+@Composable
+fun MangaView(manga: Manga, onChapterSelect: (Chapter)-> Unit, onWindowStateChange: (WindowState)-> Unit){
     Row {
         Button(onClick = {onWindowStateChange(WindowState.SEARCH)}){
             Text(text = "Back")
@@ -42,7 +59,7 @@ fun MangaInfoView(manga: Manga, onChapterSelect: (Chapter)-> Unit, onWindowState
                 text = manga.name,
                 fontSize = 24.sp
             )
-            api.model.CoverStorage.getFirstCover(manga)?.url?.let { CoverImage(it) }
+            CoverStorage.getFirstCover(manga)?.url?.let { CoverImage(it) }
             Text(
                 text = manga.description,
                 fontSize = 16.sp
@@ -51,7 +68,7 @@ fun MangaInfoView(manga: Manga, onChapterSelect: (Chapter)-> Unit, onWindowState
         Box{
             val state = rememberLazyListState()
             LazyColumn(Modifier.fillMaxSize().padding(end = 12.dp), state) {
-                items(chapterList){
+                items(manga.chapters){
                         chapter -> ChapterView(chapter, onChapterSelect)
                 }
             }
@@ -65,7 +82,7 @@ fun MangaInfoView(manga: Manga, onChapterSelect: (Chapter)-> Unit, onWindowState
 }
 
 @Composable
-fun ChapterView(chapter : api.model.Chapter, onChapterSelect :(api.model.Chapter)->Unit){
+fun ChapterView(chapter : Chapter, onChapterSelect :(Chapter)->Unit){
     Button(
         onClick = {
             onChapterSelect(chapter)
