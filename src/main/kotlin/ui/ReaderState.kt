@@ -1,18 +1,15 @@
 package ui
 
-import model.Chapter
+import androidx.compose.ui.graphics.ImageBitmap
 
-data class ReaderState(val chapter : Chapter, val currentPageNumber : Int) {
-    private var currentPageUrl = chapter.urls[currentPageNumber]
+data class ReaderState(val currentPageNumber : Int, val numOfPages : Int, val ready : Boolean, val loadingProgress : Float) {
 
     fun flip(num : Int) : ReaderState {
-        if(chapter.urls.size > currentPageNumber + num){
-            return ReaderState(chapter, currentPageNumber + num)
+        if(currentPageNumber + num in 0 until numOfPages){
+            return ReaderState(currentPageNumber + num, numOfPages, ready, loadingProgress).also { it.downloadedPages = downloadedPages }
         }
         return this
     }
 
-    fun getCurrentPageUrl(): String {
-        return currentPageUrl
-    }
+    var downloadedPages : List<ImageBitmap>  = emptyList()
 }
