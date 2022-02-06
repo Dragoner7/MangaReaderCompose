@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
@@ -81,11 +82,7 @@ fun CoverImage(url : String) {
     val image: ImageBitmap? by produceState<ImageBitmap?>(null) {
         value = withContext(Dispatchers.IO) {
             try {
-                val imageRequest = Request.Builder().url(url).build()
-                val client = OkHttpClient.Builder().build()
-                val response = client.newCall(imageRequest).execute().body()?.bytes()
-                org.jetbrains.skia.Image.makeFromEncoded(response).toComposeImageBitmap()
-
+                URL(url).openStream().buffered().use(::loadImageBitmap)
             } catch (e : Exception){
                 e.printStackTrace()
                 null
