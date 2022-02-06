@@ -18,22 +18,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import api.model.Manga
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import model.Chapter
-import model.CoverStorage
-import model.Manga
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.net.URL
 
 @Composable
 @Preview
-fun MangaInfoView(manga: Manga, onChapterSelect: (Chapter)-> Unit){
+fun MangaInfoView(manga: Manga, onChapterSelect: (api.model.Chapter)-> Unit){
     val chapterList = remember { manga.chapters }
     Row {
         Column(Modifier.width(250.dp)) {
@@ -41,7 +36,7 @@ fun MangaInfoView(manga: Manga, onChapterSelect: (Chapter)-> Unit){
                 text = manga.name,
                 fontSize = 24.sp
             )
-            CoverStorage.getFirstCover(manga)?.url?.let { CoverImage(it) }
+            api.model.CoverStorage.getFirstCover(manga)?.url?.let { CoverImage(it) }
             Text(
                 text = manga.description,
                 fontSize = 16.sp
@@ -64,7 +59,7 @@ fun MangaInfoView(manga: Manga, onChapterSelect: (Chapter)-> Unit){
 }
 
 @Composable
-fun ChapterView(chapter : Chapter, onChapterSelect :(Chapter)->Unit){
+fun ChapterView(chapter : api.model.Chapter, onChapterSelect :(api.model.Chapter)->Unit){
     Button(
         onClick = {
             onChapterSelect(chapter)

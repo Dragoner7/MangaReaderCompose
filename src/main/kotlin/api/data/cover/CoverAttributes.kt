@@ -1,4 +1,4 @@
-package data.cover
+package api.data.cover
 
 data class CoverAttributes(
     val createdAt: String,

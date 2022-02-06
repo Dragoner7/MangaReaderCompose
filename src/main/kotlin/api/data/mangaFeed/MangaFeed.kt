@@ -1,7 +1,7 @@
-package data.cover
+package api.data.mangaFeed
 
-data class CoverRequest(
-    val `data`: List<CoverDto>,
+data class MangaFeed(
+    val `data`: List<ChapterDto>,
     val limit: Int,
     val offset: Int,
     val response: String,

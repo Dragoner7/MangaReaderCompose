@@ -1,4 +1,4 @@
-package data.mangaFeed
+package api.data.mangaFeed
 
 data class AtHomeChapterAttributes (
     val `data`: List<String>,

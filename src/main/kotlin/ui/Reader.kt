@@ -1,19 +1,12 @@
 package ui
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.res.loadImageBitmap
+import api.model.Chapter
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import model.Chapter
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.jetbrains.skia.Image
 import java.net.URL
 
 class Reader(val chapter: Chapter, val onStateChange : (ReaderState)->Unit) {
@@ -27,6 +20,7 @@ class Reader(val chapter: Chapter, val onStateChange : (ReaderState)->Unit) {
 
     private val downloadedPages = mutableListOf<ImageBitmap>()
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun chapterLoad(offset : Int, num : Int) {
         GlobalScope.launch(Dispatchers.IO) {
             try{

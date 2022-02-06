@@ -2,7 +2,10 @@ package ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
@@ -16,19 +19,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.*
-import model.CoverStorage
-import model.Manga
-import model.MangaDex
-import java.awt.SystemColor.text
+import api.model.Manga
+import api.model.MangaDex
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class Result(val manga : Manga, val cover : String?)
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 @Preview
 fun SearchView(onMangaChange : (Manga) -> Unit){
@@ -42,7 +45,7 @@ fun SearchView(onMangaChange : (Manga) -> Unit){
         Button(onClick = {
             GlobalScope.launch(Dispatchers.IO) {
                 val mangaList = MangaDex.getMangaByTitle(textState.value.text)
-                val covers = CoverStorage.getFirstCovers(mangaList)
+                val covers = api.model.CoverStorage.getFirstCovers(mangaList)
                 val results : MutableList<Result> = mutableListOf()
                 for(manga in mangaList){
                     val image = covers[manga]?.url

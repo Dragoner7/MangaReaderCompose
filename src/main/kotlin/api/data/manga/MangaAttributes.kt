@@ -1,4 +1,4 @@
-package data.manga
+package api.data.manga
 
 data class MangaAttributes(
     val contentRating: String?,

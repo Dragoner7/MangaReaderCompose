@@ -1,19 +1,11 @@
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import model.Chapter
-import model.Manga
-import model.MangaDex
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.jetbrains.skia.Image
+import api.model.Chapter
+import api.model.Manga
 import ui.*
 
 enum class WindowState{
@@ -32,21 +24,21 @@ fun main() {
             var selectedChapter: Chapter? by remember { mutableStateOf(null) }
             var windowState: WindowState by remember { mutableStateOf(WindowState.SEARCH) }
             var readerState by remember { mutableStateOf(ReaderState(0, 0, false, 0.0f, null)) }
-            fun onStateChange(state: ReaderState): Unit {
+            fun onStateChange(state: ReaderState){
                 readerState = state
             }
 
-            fun notifyStateChange(state: ReaderState): Unit {
+            fun notifyStateChange(state: ReaderState){
                 reader.notifyStateChange(state)
             }
 
-            fun onChapterChange(chapter: Chapter): Unit {
+            fun onChapterChange(chapter: Chapter){
                 selectedChapter = chapter
                 windowState = WindowState.VIEW
                 reader = Reader(chapter, ::onStateChange)
             }
 
-            fun onMangaChange(manga: Manga): Unit {
+            fun onMangaChange(manga: Manga){
                 selectedManga = manga
                 windowState = WindowState.INFO
             }

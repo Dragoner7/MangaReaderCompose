@@ -1,10 +1,10 @@
-package data
+package api.data
 
-import data.cover.CoverRequest
-import data.manga.MangaRequest
-import data.manga.MangaSearch
-import data.mangaFeed.AtHomeDto
-import data.mangaFeed.MangaFeed
+import api.data.cover.CoverRequest
+import api.data.manga.MangaRequest
+import api.data.manga.MangaSearch
+import api.data.mangaFeed.AtHomeDto
+import api.data.mangaFeed.MangaFeed
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path

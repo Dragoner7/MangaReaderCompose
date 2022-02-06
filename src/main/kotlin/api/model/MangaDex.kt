@@ -1,13 +1,13 @@
-package model
+package api.model
 
+import api.data.MangaDexService
+import api.data.cover.CoverDto
+import api.data.cover.CoverRequest
+import api.data.manga.MangaDto
+import api.data.mangaFeed.AtHomeDto
+import api.data.mangaFeed.ChapterDto
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import data.MangaDexService
-import data.cover.CoverDto
-import data.cover.CoverRequest
-import data.manga.MangaDto
-import data.mangaFeed.AtHomeDto
-import data.mangaFeed.ChapterDto
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
@@ -84,13 +84,17 @@ object MangaDex {
         return rqMap
     }
 
-    private fun CoverDto.toCover() : Cover{
+    private fun CoverDto.toCover() : Cover {
         val volumeNo = this.attributes.volume?.let { try{it.toInt() }catch (e : NumberFormatException){0}}
         return Cover(this.relationships.first { it.type == "manga" }.id, volumeNo, this.attributes.fileName)
     }
 
-    private fun ChapterDto.toChapter() : Chapter{
-        val chapter = Chapter(this.id,this.attributes.chapter?.toDouble() ?: 0.0, this.attributes.translatedLanguage ?: "unknown")
+    private fun ChapterDto.toChapter() : Chapter {
+        val chapter = Chapter(
+            this.id,
+            this.attributes.chapter?.toDouble() ?: 0.0,
+            this.attributes.translatedLanguage ?: "unknown"
+        )
         chapter.also {
             val title = this.attributes.title
             if(title != null){
