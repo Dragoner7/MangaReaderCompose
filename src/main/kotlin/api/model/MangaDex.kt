@@ -48,7 +48,7 @@ object MangaDex {
             val result = service.getMangaByTitle(title).execute().body()!!
 
             for(mangaDto in result.data){
-                mangaList.add(Manga(mangaDto.id, findName(mangaDto), mangaDto.attributes.description?.en ?: ""))
+                mangaList.add(Manga(mangaDto.id, findName(mangaDto), mangaDto.attributes.description.en ?: ""))
             }
         } catch (e: Exception) {
             e.printStackTrace()
