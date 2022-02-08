@@ -1,5 +1,6 @@
 package api.model
 
+import api.DescriptionAdapter
 import api.data.MangaDexService
 import api.data.cover.CoverDto
 import api.data.cover.CoverRequest
@@ -13,7 +14,9 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 object MangaDex {
     private val moshi: Moshi = Moshi.Builder()
-        .addLast(KotlinJsonAdapterFactory()).build()
+        .add(DescriptionAdapter())
+        .addLast(KotlinJsonAdapterFactory())
+        .build()
     private var retrofit: Retrofit = Retrofit.Builder()
         .baseUrl("https://api.mangadex.org/")
         .addConverterFactory(MoshiConverterFactory.create(moshi))
@@ -23,7 +26,8 @@ object MangaDex {
     fun getManga(id: String): Manga? {
         try {
             val mangaRequest = service.getMangaById(id).execute().body()!!
-            return Manga(mangaRequest.data.id, findName(mangaRequest.data), mangaRequest.data.attributes.description.en ?: "")
+            return Manga(mangaRequest.data.id, findName(mangaRequest.data), mangaRequest.data.attributes.description.en
+                ?: "")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -44,7 +48,7 @@ object MangaDex {
             val result = service.getMangaByTitle(title).execute().body()!!
 
             for(mangaDto in result.data){
-                mangaList.add(Manga(mangaDto.id, findName(mangaDto), mangaDto.attributes.description.en ?: ""))
+                mangaList.add(Manga(mangaDto.id, findName(mangaDto), mangaDto.attributes.description?.en ?: ""))
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -93,7 +97,8 @@ object MangaDex {
         val chapter = Chapter(
             this.id,
             this.attributes.chapter?.toDouble() ?: 0.0,
-            this.attributes.translatedLanguage ?: "unknown"
+            this.attributes.translatedLanguage ?: "unknown",
+            this.attributes.externalUrl != null
         )
         chapter.also {
             val title = this.attributes.title

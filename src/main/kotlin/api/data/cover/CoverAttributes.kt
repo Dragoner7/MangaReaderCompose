@@ -6,5 +6,6 @@ data class CoverAttributes(
     val fileName: String,
     val updatedAt: String,
     val version: Int,
-    val volume: String?
+    val volume: String?,
+    val externalUrl : String?
 )

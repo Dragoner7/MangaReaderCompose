@@ -2,7 +2,7 @@ package api.model
 
 import java.text.DecimalFormat
 
-class Chapter(val id : String, number : Double, lang : String) {
+class Chapter(val id : String, number : Double, lang : String, val external : Boolean) {
     var number = number
         private set
 
@@ -11,7 +11,9 @@ class Chapter(val id : String, number : Double, lang : String) {
 
     var title = ""
 
-    val urls : List<String> by lazy { MangaDex.getChapterUrls(id) }
+    val urls : List<String> by lazy {
+        MangaDex.getChapterUrls(id)
+    }
 
     override fun toString(): String {
         return "Chapter ${chapterNumberString()}: $title ($lang)"
