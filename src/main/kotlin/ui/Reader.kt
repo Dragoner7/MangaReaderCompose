@@ -3,10 +3,7 @@ package ui
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.loadImageBitmap
 import api.model.Chapter
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.OkHttpClient
@@ -24,16 +21,15 @@ class Reader(chapter: Chapter, var onStateChange : (ReaderState)->Unit) {
     private var currentPageNumber = 0
     private var numOfPages : Int = chapter.urls.size
     private var ready : Boolean = false
-
     private val okHttpClient = OkHttpClient()
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private var pages : List<Page> = emptyList()
 
     init {
+        pages = chapter.urls.mapIndexed{i, url-> Page(i, url, false, null)}
         onStateChange(ReaderState(0, 0, ready, 0.0f, null))
         chapterPreload(0, PRELOAD_PAGES)
     }
-
-    private val pages : List<Page> = chapter.urls.mapIndexed{i, url-> Page(i, url, false, null)}
-
     private suspend fun downloadFuturePages(offset : Int, num : Int, afterEachDownload: (Int)->Unit){
         for (i in offset until min(offset + num, numOfPages)) {
             val page = pages[i]
@@ -55,9 +51,8 @@ class Reader(chapter: Chapter, var onStateChange : (ReaderState)->Unit) {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun chapterPreload(offset : Int, num : Int) {
-        GlobalScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(Dispatchers.IO) {
             try{
                 downloadFuturePages(offset, num){
                     val progress = it.toFloat() / num.toFloat()
@@ -95,6 +90,7 @@ class Reader(chapter: Chapter, var onStateChange : (ReaderState)->Unit) {
     }
 
     fun dispose(){
+        coroutineScope.cancel()
         onStateChange = {}
         for(page in pages){
             okHttpClient.dispatcher().cancelAll()
