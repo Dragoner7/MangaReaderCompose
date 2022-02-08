@@ -9,10 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,18 +18,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import api.model.Manga
 import api.model.MangaDex
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class Result(val manga : Manga, val cover : String?)
 
-@OptIn(DelicateCoroutinesApi::class)
 @Composable
 @Preview
 fun SearchView(onMangaChange : (Manga) -> Unit){
     val searching = remember { mutableStateOf<Boolean>(false) }
+    val coroutineScope = rememberCoroutineScope()
     Column(modifier = Modifier.fillMaxSize()) {
         val textState = remember { mutableStateOf(TextFieldValue()) }
         val mangaResults = remember { mutableStateListOf<Result>() }
@@ -43,7 +37,7 @@ fun SearchView(onMangaChange : (Manga) -> Unit){
             )
             Button(onClick = {
                 searching.value = true
-                GlobalScope.launch(Dispatchers.IO) {
+                coroutineScope.launch(Dispatchers.IO) {
                     val mangaList = MangaDex.getMangaByTitle(textState.value.text)
                     val covers = api.model.CoverStorage.getFirstCovers(mangaList)
                     val results : MutableList<Result> = mutableListOf()
